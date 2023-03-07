@@ -12,7 +12,7 @@ class Role(BaseModel):
         description="Current role of the user",
         max_length=20, min_length=5
     )
-    id: str
+    id: int
     description: str
 
 
@@ -38,33 +38,37 @@ class FullUserProfile(User, Profile):
     department_name: str = Field(alias="department")
 
 
+class UserOut(BaseModel):
+    user_id: int = Field(title="User ID", description="Id of newly created user")
+
+
 users_info = {
-    "admin": {
+    0: {
         "name": "Joe Men",
         "age": 20
     },
-    "user_1": {
+    1: {
         "name": "Roe Ken",
         "age": 20
     },
-    "user_2": {
+    2: {
         "name": "Betty Lov",
         "age": 20
     },
 }
 
 users_role = {
-    "admin": {
+    0: {
         "name": "developer lead",
         "id": 1,
         "description": "PaySwitch developer lead"
     },
-    "user_1": {
+    1: {
         "name": "UI developer",
         "id": 1,
         "description": "PaySwitch UI developer"
     },
-    "user_2": {
+    2: {
         "name": "Mobile developer",
         "id": 1,
         "description": "PaySwitch Mobile developer"
@@ -73,19 +77,19 @@ users_role = {
 }
 
 users_profile = {
-    "admin": {
+    0: {
         "title": "Software Developer",
         "description": "PaySwitch software developer",
         "address": "accra",
         "roles": []
     },
-    "user_1": {
+    1: {
         "title": "Software Developer",
         "description": "PaySwitch software developer",
         "address": "Koforidua",
         "roles": []
     },
-    "user_2": {
+    2: {
         "title": "Software Developer",
         "description": "PaySwitch software developer",
         "address": "Tema",
@@ -94,7 +98,8 @@ users_profile = {
 }
 
 
-def get_user_info(user_id: str = "admin") -> User:
+def get_user_info(user_id: int = 0) -> FullUserProfile:
+    print(users_role[0])
     user_role = Role(**users_role[user_id])
     users_profile[user_id]["roles"].append(user_role)
     user_profile = Profile(**users_profile[user_id])
@@ -111,7 +116,31 @@ def get_user_info(user_id: str = "admin") -> User:
 
 
 def create_user(full_user_profile: FullUserProfile):
-    pass
+    new_user_id = len(users_info)
+    users_info[new_user_id] = {
+        "name": full_user_profile.name,
+        "age": full_user_profile.age
+    }
+    # users_info.setdefault(new_user_id, {})
+    # users_info[new_user_id]["name"] = full_user_profile.name
+    # users_info[new_user_id]["age"] = full_user_profile.age
+    users_profile[new_user_id] = {
+        "title": full_user_profile.title,
+        "description": full_user_profile.description,
+        "address": full_user_profile.address,
+        "roles": full_user_profile.roles
+    }
+    # users_profile.setdefault(new_user_id, {})
+    # users_profile[new_user_id]["name"] = full_user_profile.title
+    # users_profile[new_user_id]["description"] = full_user_profile.description
+    # users_profile[new_user_id]["address"] = full_user_profile.address
+
+    # users_role.setdefault(new_user_id, full_user_profile.roles)
+    print(users_role, "\n\n", users_info, "\n\n", users_profile)
+
+    # users_role[new_user_id] = full_user_profile.roles
+
+    return new_user_id
 
 
 @app.get("/", response_class=PlainTextResponse)
@@ -130,22 +159,18 @@ def getuser():
     return full_user_profile
 
 
-@app.get("/user/{user_id}", response_model=FullUserProfile)
-def get_user_by_id(user_id: str):
+@app.get("/users/{user_id}", response_model=FullUserProfile)
+def get_user_by_id(user_id: int):
     full_user_profile = get_user_info(user_id)
     return full_user_profile
 
 
-@app.post("/users")
-def add_user(full_user_profile: FullUserProfile):
+@app.post("/users", response_model=UserOut)
+def add_user(full_user_profile: FullUserProfile) -> UserOut:
     print(full_user_profile)
-    pass
-
-
-
-
-
-
+    new_user = create_user(full_user_profile)
+    new_user = UserOut(user_id=new_user)
+    return new_user
 
 # practice using decorators
 # def add_age(fn):
