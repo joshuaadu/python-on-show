@@ -38,6 +38,10 @@ class FullUserProfile(User, Profile):
     department_name: str = Field(alias="department")
 
 
+class MultipleUsersProfile(BaseModel):
+    users: list[FullUserProfile]
+
+
 class UserOut(BaseModel):
     user_id: int = Field(title="User ID", description="Id of newly created user")
 
@@ -57,6 +61,7 @@ users_info = {
     },
 }
 
+
 users_role = {
     0: {
         "name": "developer lead",
@@ -75,6 +80,7 @@ users_role = {
     }
 
 }
+
 
 users_profile = {
     0: {
@@ -121,26 +127,29 @@ def create_user(full_user_profile: FullUserProfile):
         "name": full_user_profile.name,
         "age": full_user_profile.age
     }
-    # users_info.setdefault(new_user_id, {})
-    # users_info[new_user_id]["name"] = full_user_profile.name
-    # users_info[new_user_id]["age"] = full_user_profile.age
     users_profile[new_user_id] = {
         "title": full_user_profile.title,
         "description": full_user_profile.description,
         "address": full_user_profile.address,
         "roles": full_user_profile.roles
     }
-    # users_profile.setdefault(new_user_id, {})
-    # users_profile[new_user_id]["name"] = full_user_profile.title
-    # users_profile[new_user_id]["description"] = full_user_profile.description
-    # users_profile[new_user_id]["address"] = full_user_profile.address
-
-    # users_role.setdefault(new_user_id, full_user_profile.roles)
     print(users_role, "\n\n", users_info, "\n\n", users_profile)
-
-    # users_role[new_user_id] = full_user_profile.roles
-
     return new_user_id
+
+
+def get_users_with_pagination(start: int, limit: int) -> list[FullUserProfile]:
+    keys = list(users_info.keys())
+    print(keys)
+    keys_length = len(keys)
+    users = []
+    for index in range(0, keys_length):
+        if index < start:
+            continue
+        if len(users) >= limit:
+            break
+        print("current key is {}".format(keys[index]))
+        users.append(get_user_info(keys[index]))
+    return users
 
 
 @app.get("/", response_class=PlainTextResponse)
@@ -165,21 +174,16 @@ def get_user_by_id(user_id: int):
     return full_user_profile
 
 
+@app.get("/users", response_model=MultipleUsersProfile)
+def get_all_users(start: int = 0, limit: int = 2):
+    users = get_users_with_pagination(start, limit)
+    users_list = MultipleUsersProfile(users=users)
+    return users_list
+
+
 @app.post("/users", response_model=UserOut)
 def add_user(full_user_profile: FullUserProfile) -> UserOut:
     print(full_user_profile)
     new_user = create_user(full_user_profile)
     new_user = UserOut(user_id=new_user)
     return new_user
-
-# practice using decorators
-# def add_age(fn):
-#     def wrapper():
-#         age = 10
-#         return fn(age)
-#     return wrapper
-
-# @app.get("/user/age")
-# @add_age
-# def user(age):
-#     return "name: Jo, age:{}".format(age)
