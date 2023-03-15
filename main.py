@@ -105,7 +105,7 @@ users_profile = {
 }
 
 
-def get_user_info(user_id: int = 0) -> FullUserProfile:
+async def get_user_info(user_id: int = 0) -> FullUserProfile:
     user_profile = Profile(**users_profile[user_id])
     user_info = User(**users_info[user_id])
     full_user_profile = {
@@ -118,7 +118,15 @@ def get_user_info(user_id: int = 0) -> FullUserProfile:
     return full_user_profile
 
 
-def create_update_user(full_user_profile: FullUserProfile, user_id: Optional[int] = None) -> int:
+async def create_update_user(full_user_profile: FullUserProfile, user_id: Optional[int] = None) -> int:
+    """
+    Create user and new unique user id if not exist otherwise update the user
+    Placeholder implementation later to be updated with DB
+
+    :param full_user_profile: FullUserProfile - User information saved in database
+    :param user_id: Optional[int] - user_id if already exists, otherwise to be set
+    :return: user_id: int - existing or new user id
+    """
     if user_id is None:
         user_id = len(users_info)
 
@@ -137,7 +145,7 @@ def create_update_user(full_user_profile: FullUserProfile, user_id: Optional[int
     return user_id
 
 
-def get_users_with_pagination(start: int, limit: int) -> (list[FullUserProfile], int):
+async def get_users_with_pagination(start: int, limit: int) -> (list[FullUserProfile], int):
     keys = list(users_info.keys())
     keys_length = len(keys)
     users = []
@@ -146,11 +154,11 @@ def get_users_with_pagination(start: int, limit: int) -> (list[FullUserProfile],
             continue
         if len(users) >= limit:
             break
-        users.append(get_user_info(keys[index]))
+        users.append(await get_user_info(keys[index]))
     return users, keys_length
 
 
-def delete_user_by_id(user_id: int):
+async def delete_user_by_id(user_id: int):
     global users_info
     global users_role
     global users_profile
@@ -162,48 +170,53 @@ def delete_user_by_id(user_id: int):
 
 
 @app.get("/", response_class=PlainTextResponse)
-def home():
+async def home():
     return "Hello World from Ghana"
 
 
 @app.get("/about", response_class=JSONResponse)
-def about():
+async def about():
     return {"name": "John Doe", "address": "East Legon"}
 
 
 @app.get("/user/me", response_model=FullUserProfile)
-def getuser():
-    full_user_profile = get_user_info()
+async def getuser():
+    full_user_profile = await get_user_info()
     return full_user_profile
 
 
 @app.get("/users/{user_id}", response_model=FullUserProfile)
-def get_user_by_id(user_id: int):
-    full_user_profile = get_user_info(user_id)
+async def get_user_by_id(user_id: int):
+    """
+    Endpoint for retrieving a FullUserProfile by the user's unique integer id
+    :param user_id:
+    :return:
+    """
+    full_user_profile = await get_user_info(user_id)
     return full_user_profile
 
 
 @app.get("/users", response_model=MultipleUsersProfile)
-def get_all_users_pagination(start: int = 0, limit: int = 2):
-    users, total = get_users_with_pagination(start, limit)
+async def get_all_users_pagination(start: int = 0, limit: int = 2):
+    users, total = await get_users_with_pagination(start, limit)
     users_list = MultipleUsersProfile(users=users, total=total)
     return users_list
 
 
 @app.post("/users", response_model=UserOut)
-def add_user(full_user_profile: FullUserProfile) -> UserOut:
-    new_user = create_update_user(full_user_profile)
+async def add_user(full_user_profile: FullUserProfile) -> UserOut:
+    new_user = await create_update_user(full_user_profile)
     new_user = UserOut(user_id=new_user)
     return new_user
 
 
 @app.put("/users/{user_id}", response_model=UserOut)
-def update_user(user_id: int, full_user_profile: FullUserProfile) -> UserOut:
-    updated_user = create_update_user(full_user_profile, user_id)
+async def update_user(user_id: int, full_user_profile: FullUserProfile) -> UserOut:
+    updated_user = await create_update_user(full_user_profile, user_id)
     updated_user = UserOut(user_id=updated_user)
     return updated_user
 
 
 @app.delete("/users/{user_id}", response_model=str)
-def remove_user(user_id: int):
-    return delete_user_by_id(user_id)
+async def remove_user(user_id: int):
+    return await delete_user_by_id(user_id)
