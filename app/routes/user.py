@@ -1,14 +1,18 @@
-from fastapi import APIRouter
-from fastapi.responses import (
-    PlainTextResponse,
-    JSONResponse
+from fastapi import (
+    APIRouter,
+    Depends
 )
 from app.services.user import UserService
 from app.schemas.user import (UserOut, MultipleUsersProfile, FullUserProfile)
+from app.dependencies import rate_limit
 
 
 def create_user_router() -> APIRouter:
-    user_router = APIRouter(prefix="/users", tags=["Users"])
+    user_router = APIRouter(
+        prefix="/users",
+        tags=["Users"],
+        dependencies=[Depends(rate_limit)]
+    )
     user_service = UserService()
 
     @user_router.get("/me", response_model=FullUserProfile)
@@ -35,7 +39,10 @@ def create_user_router() -> APIRouter:
         :param user_id:
         :return:
         """
+        # try:
         full_user_profile = await user_service.get_user_info(user_id)
+        # except KeyError:
+        #     raise HTTPException(status_code=404, detail={"msg": "User not found", "user_id": user_id})
         return full_user_profile
 
     @user_router.put("/{user_id}", response_model=UserOut)
@@ -46,6 +53,9 @@ def create_user_router() -> APIRouter:
 
     @user_router.delete("/{user_id}", response_model=str)
     async def remove_user(user_id: int):
-        return await user_service.delete_user_by_id(user_id)
+        # try:
+        await user_service.delete_user_by_id(user_id)
+        # except KeyError:
+        #     raise HTTPException(status_code=404, detail={"msg": "User doesn't exist", "user_id": user_id})
 
     return user_router

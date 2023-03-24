@@ -4,6 +4,7 @@ from app.schemas.user import (
     Profile,
     User
 )
+from app.exceptions import UserNotFound
 
 users_info = {
     0: {
@@ -79,6 +80,8 @@ class UserService:
 
     @staticmethod
     async def get_user_info(user_id: int = 0) -> FullUserProfile:
+        if user_id not in users_info:
+            raise UserNotFound(user_id=user_id)
         user_profile = Profile(**users_profile[user_id])
         user_info = User(**users_info[user_id])
         full_user_profile = {
@@ -123,6 +126,8 @@ class UserService:
         global users_role
         global users_profile
 
+        if user_id not in users_info:
+            raise UserNotFound(user_id=user_id)
         del users_info[user_id]
         del users_profile[user_id]
         del users_role[user_id]
