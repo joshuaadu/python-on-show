@@ -7,13 +7,13 @@ from app.schemas.user import (UserOut, MultipleUsersProfile, FullUserProfile)
 from app.dependencies import rate_limit
 
 
-def create_user_router() -> APIRouter:
+def create_user_router(users_info: dict, users_role: dict, users_profile: dict) -> APIRouter:
     user_router = APIRouter(
         prefix="/users",
         tags=["Users"],
         dependencies=[Depends(rate_limit)]
     )
-    user_service = UserService()
+    user_service = UserService(users_info, users_role, users_profile)
 
     @user_router.get("/me", response_model=FullUserProfile)
     async def getuser():
