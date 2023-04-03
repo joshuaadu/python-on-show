@@ -66,13 +66,13 @@ class UserService:
         return user_id
 
     async def delete_user_by_id(self, user_id: int) -> str:
-        print(f"Delete User with id: {user_id} from...")
-        print(self.users_info, self.users_role, self.users_profile)
+        # print(f"Delete User with id: {user_id} from...")
+        # print(self.users_info, self.users_role, self.users_profile)
         if user_id not in self.users_info:
-            print(f"user_id {user_id} not in database: {user_id not in self.users_info}")
+            # print(f"user_id {user_id} not in database: {user_id not in self.users_info}")
             raise UserNotFound(user_id=user_id)
         # try:
-        print("delete user")
+        # print("delete user")
         del self.users_info[user_id]
         del self.users_profile[user_id]
         del self.users_role[user_id]

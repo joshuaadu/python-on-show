@@ -55,8 +55,8 @@ def create_user_router(users_info: dict, users_role: dict, users_profile: dict) 
     @user_router.delete("/{user_id}", response_model=str)
     async def remove_user(user_id: int):
         # try:
-        await user_service.delete_user_by_id(user_id)
+        response = await user_service.delete_user_by_id(user_id)
         # except KeyError:
         #     raise HTTPException(status_code=404, detail={"msg": "User doesn't exist", "user_id": user_id})
-
+        return response
     return user_router
