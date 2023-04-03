@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 from main import create_application
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def testing_app() -> TestClient:
     app = create_application()
     testing_app = TestClient(app)

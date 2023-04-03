@@ -8,6 +8,7 @@ from app.dependencies import rate_limit
 
 
 def create_user_router(users_info: dict, users_role: dict, users_profile: dict) -> APIRouter:
+    # print(users_info, users_role, users_profile)
     user_router = APIRouter(
         prefix="/users",
         tags=["Users"],

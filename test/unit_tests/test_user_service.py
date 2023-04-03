@@ -5,12 +5,11 @@ from app.services.user import UserService
 
 
 @pytest.mark.asyncio
-async def test_delete_user_works_properly(user_data, user_service):
+async def test_delete_user_works_properly(user_data, user_service, valid_user_id):
     # user_service = UserService(users_info, users_role, users_profile)
     # print(*user_data)
     # user_service = UserService(*user_data)
-    user_to_delete = 2
-    await user_service.delete_user_by_id(user_to_delete)
-    assert user_to_delete not in users_info
-    assert user_to_delete not in users_profile
-    assert user_to_delete not in users_role
+    await user_service.delete_user_by_id(valid_user_id)
+    assert valid_user_id not in users_info
+    assert valid_user_id not in users_profile
+    assert valid_user_id not in users_role

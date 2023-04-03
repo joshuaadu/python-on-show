@@ -16,3 +16,12 @@ def user_service(user_data):
     user_service = UserService(*user_data)
     return user_service
 
+
+@pytest.fixture(scope="session")
+def valid_user_id() -> int:
+    return 0
+
+
+@pytest.fixture(scope="session")
+def invalid_user_id() -> int:
+    return 4
