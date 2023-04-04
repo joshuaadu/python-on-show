@@ -1,6 +1,7 @@
 import pytest
 from fake_database import user
 from app.services.user import UserService
+from app.schemas.user import FullUserProfile
 
 
 @pytest.fixture
@@ -25,3 +26,44 @@ def valid_user_id() -> int:
 @pytest.fixture(scope="session")
 def invalid_user_id() -> int:
     return 4
+
+
+@pytest.fixture
+def testing_rate_limit() -> int:
+    return 15
+
+
+@pytest.fixture()
+def new_user() -> FullUserProfile:
+    return FullUserProfile(title="string",
+                           description="string",
+                           address="string",
+                           roles=[
+                               {
+                                   "name": "string",
+                                   "id": 0,
+                                   "description": "string"
+                               }
+                           ],
+                           department="mdkdkdkdkdkd",
+                           name="string",
+                           age=19,
+                           )
+
+
+@pytest.fixture()
+def updated_user() -> FullUserProfile:
+    return FullUserProfile(title="Update",
+                           description="string",
+                           address="string",
+                           roles=[
+                               {
+                                   "name": "string",
+                                   "id": 0,
+                                   "description": "string"
+                               }
+                           ],
+                           department="mdkdkdkdkdkd",
+                           name="string",
+                           age=20,
+                           )

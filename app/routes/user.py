@@ -29,6 +29,7 @@ def create_user_router(users_info: dict, users_role: dict, users_profile: dict) 
 
     @user_router.post("/", response_model=UserOut, status_code=201)
     async def add_user(full_user_profile: FullUserProfile) -> UserOut:
+        print(full_user_profile.json())
         new_user = await user_service.create_update_user(full_user_profile)
         new_user = UserOut(user_id=new_user)
         return new_user

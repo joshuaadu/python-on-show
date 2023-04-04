@@ -7,7 +7,7 @@ import time
 
 start_time = time.time()
 reset_interval = 10
-limit = 5
+limit = 10
 count = 0
 
 
@@ -23,5 +23,5 @@ def rate_limit(response: Response) -> Response:
                                                      "timeout": round(start_time + reset_interval - time.time())
                                                      })
     count += 1
-    response.headers["X-limit"] = f"{count}:{limit}"
+    response.headers["X-app-rate-limit"] = f"{count}:{limit}"
     return response

@@ -48,6 +48,7 @@ class UserService:
         :param user_id: Optional[int] - user_id if already exists, otherwise to be set
         :return: user_id: int - existing or new user id
         """
+        # print("create_update_user:", full_user_profile.dict())
         if user_id is None:
             user_id = len(self.users_info)
 

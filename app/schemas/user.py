@@ -31,7 +31,10 @@ class User(BaseModel):
 
 
 class FullUserProfile(User, Profile):
-    department_name: str = Field(alias="department")
+    department: str
+    # department_name: str = Field(alias="department")
+    # I had the following error during testing:
+    # {'detail': [{'loc': ['body', 'department'], 'msg': 'field required', 'type': 'value_error.missing'}]}
 
 
 class MultipleUsersProfile(BaseModel):
