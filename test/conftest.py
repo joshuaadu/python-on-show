@@ -20,7 +20,7 @@ def user_service(user_data):
 
 @pytest.fixture(scope="session")
 def valid_user_id() -> int:
-    return 0
+    return 1
 
 
 @pytest.fixture(scope="session")
