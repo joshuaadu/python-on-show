@@ -16,5 +16,5 @@ def create_application() -> FastAPI:
 
 # def create_mock_database():
 
-
 app = create_application()
+
