@@ -1,14 +1,29 @@
-FROM python:3.11-alpine
+FROM python:3.11-alpine AS base
+
+ENV PYROOT /pyroot
+ENV PYTHONUSERBASE ${PYROOT}
+ENV PATH=${PATH}:${PYROOT}/bin
 
 RUN pip install pipenv
-RUN mkdir -p /usr/src/app/app
-WORKDIR /usr/src/app
-COPY Pipfile Pipfile.lock main.py ./
-#COPY app ./app
-COPY fake_database .
+COPY Pipfile* ./
+RUN PIP_USER=1 pipenv install --system --deploy --ignore-pipfile
 
-#RUN pipenv install --system
+FROM python:3.11-alpine
 
-CMD ls -la fake_database
+ENV PYROOT /pyroot
+ENV PYTHONUSERBASE ${PYROOT}
+ENV PATH=${PATH}:${PYROOT}/bin
 
-#CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+RUN addgroup -S myapp && adduser -S -G myapp user -u 1234
+COPY --chown=myapp:user --from=base ${PYROOT}/ ${PYROOT}/
+
+RUN mkdir -p /usr/src/app /usr/src/fake_database
+WORKDIR /usr/src
+
+COPY --chown=myapp:user app ./app
+COPY --chown=myapp:user fake_database ./fake_database
+USER user
+
+CMD ls -la app
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
